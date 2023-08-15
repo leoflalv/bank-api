@@ -13,8 +13,15 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup migrations
+        run: make migrate-up
+
+      - name: Start docker container
+        run: make up-db
 
       - name: Set up Go
         uses: actions/setup-go@v4
