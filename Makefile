@@ -10,6 +10,9 @@ DOCKER_COMPOSE_FILE ?= docker-compose.dev.yml
 up-db:
 	docker compose -f ${DOCKER_COMPOSE_FILE} up
 
+build-db:
+	docker compose -f ${DOCKER_COMPOSE_FILE} up -d --build
+
 shell-db:
 	docker compose -f ${DOCKER_COMPOSE_FILE} exec db psql -U postgres -d postgres
 

@@ -21,7 +21,7 @@ jobs:
         run: make migrate-up
 
       - name: Start docker container
-        run: make up-db
+        run: make build-db
 
       - name: Set up Go
         uses: actions/setup-go@v4
