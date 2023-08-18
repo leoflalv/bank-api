@@ -36,3 +36,6 @@ migrate-create:
 
 test:
 	go test -v -cover ./...
+
+server:
+	go run main.go
