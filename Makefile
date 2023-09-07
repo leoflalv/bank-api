@@ -1,6 +1,7 @@
 #===================#
 #== Env Variables ==#
 #===================#
+
 DOCKER_COMPOSE_FILE ?= docker-compose.dev.yml
 
 #=========================#
@@ -15,7 +16,6 @@ build-db:
 
 shell-db:
 	docker compose -f ${DOCKER_COMPOSE_FILE} exec db psql -U postgres -d postgres
-
 
 #========================#
 #== DATABASE MIGRATION ==#
@@ -39,3 +39,6 @@ test:
 
 server:
 	go run main.go
+
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github/leoflalv/bank-api/db/sqlc Store
