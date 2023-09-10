@@ -9,7 +9,7 @@ import (
 
 const threshold = 0.001
 
-func TestTransferTx(t *testing.T) {
+func TestTransaction(t *testing.T) {
 	store := NewStore(testDB)
 
 	account1 := createRandomAccount()
@@ -19,11 +19,11 @@ func TestTransferTx(t *testing.T) {
 	amount := float64(10)
 
 	errs := make(chan error)
-	results := make(chan TransferTxResult)
+	results := make(chan TransactionResult)
 
 	for i := 0; i < n; i++ {
 		go func() {
-			result, err := store.TransferTx(context.Background(), TransferTxParams{
+			result, err := store.Transaction(context.Background(), TransactionParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,
@@ -103,7 +103,7 @@ func TestTransferTx(t *testing.T) {
 	require.True(t, account2.Balance+float64(n)*amount-updatedAccount2.Balance < threshold && account2.Balance+float64(n)*amount-updatedAccount2.Balance > -threshold)
 }
 
-func TestTransferTxDeadlock(t *testing.T) {
+func TestTransactionDeadlock(t *testing.T) {
 	store := NewStore(testDB)
 
 	account1 := createRandomAccount()
@@ -124,7 +124,7 @@ func TestTransferTxDeadlock(t *testing.T) {
 		}
 
 		go func() {
-			_, err := store.TransferTx(context.Background(), TransferTxParams{
+			_, err := store.Transaction(context.Background(), TransactionParams{
 				FromAccountID: fromAccountID,
 				ToAccountID:   toAccountID,
 				Amount:        amount,

@@ -21,7 +21,7 @@ func SetupRoutes(server *Server) {
 	router.DELETE("/account/:id", server.deleteAccount)
 
 	// Transfers
-	router.POST("/transfer", server.createTransfer)
+	router.POST("/transaction", server.createTransaction)
 
 	server.router = router
 }

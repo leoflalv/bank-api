@@ -37,7 +37,7 @@ type transferRequest struct {
 	Currency      string  `json:"currency" binding:"required,currency"`
 }
 
-func (server *Server) createTransfer(ctx *gin.Context) {
+func (server *Server) createTransaction(ctx *gin.Context) {
 
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -49,13 +49,13 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.TransferTxParams{
+	arg := db.TransactionParams{
 		FromAccountID: req.FromAccountId,
 		ToAccountID:   req.ToAccountId,
 		Amount:        req.Amount,
 	}
 
-	result, err := server.store.TransferTx(ctx, arg)
+	result, err := server.store.Transaction(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
