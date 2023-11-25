@@ -24,7 +24,13 @@ shell-db:
 migrate-up:
 	docker compose -f ${DOCKER_COMPOSE_FILE} --profile tools run --rm migrate up
 
+migrate-up:
+	docker compose -f ${DOCKER_COMPOSE_FILE} --profile tools run --rm migrate up 1
+
 migrate-down:
+	docker compose -f ${DOCKER_COMPOSE_FILE} --profile tools run --rm migrate down 
+
+migrate-down1:
 	docker compose -f ${DOCKER_COMPOSE_FILE} --profile tools run --rm migrate down 1
 
 migrate-create:
