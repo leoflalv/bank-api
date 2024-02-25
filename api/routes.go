@@ -13,6 +13,10 @@ func SetupRoutes(server *Server) {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
+	// Users
+	router.GET("/user/:username", server.getUser)
+	router.POST("/user", server.createUser)
+
 	// Accounts
 	router.GET("/account/:id", server.getAccount)
 	router.GET("/accounts", server.listAccounts)
