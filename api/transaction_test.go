@@ -191,7 +191,7 @@ func TestCreateTransactionAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 

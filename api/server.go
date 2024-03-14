@@ -1,22 +1,32 @@
 package api
 
 import (
+	"fmt"
 	db "github/leoflalv/bank-api/db/sqlc"
+	"github/leoflalv/bank-api/token"
+	"github/leoflalv/bank-api/util"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Server serves HTTP requests.
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config       util.Config
+	store        db.Store
+	tokenManager token.Manager
+	router       *gin.Engine
 }
 
 // NewServer creates a new HTTP server and setup routing.
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenManager, err := token.NewPasetoManager(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token manager: %w", err)
+	}
 
-	return server
+	server := &Server{store: store, tokenManager: tokenManager, config: config}
+
+	return server, nil
 }
 
 // Start runs the HTTP server on a specific address.

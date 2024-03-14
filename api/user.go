@@ -2,18 +2,33 @@ package api
 
 import (
 	"database/sql"
+	"net/http"
+	"time"
+
 	db "github/leoflalv/bank-api/db/sqlc"
 	"github/leoflalv/bank-api/util"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 type userResponse struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
+	Username          string    `json:"username"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
+func newUserResponse(user db.User) userResponse {
+	return userResponse{
+		Username:          user.Username,
+		FullName:          user.FullName,
+		Email:             user.Email,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
 }
 
 type getUserRequest struct {
@@ -38,11 +53,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	resp := userResponse{
-		Username: user.Username,
-		Email:    user.Email,
-		FullName: user.FullName,
-	}
+	resp := newUserResponse(user)
 
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -87,11 +98,24 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
-	resp := userResponse{
-		Username: user.Username,
-		Email:    user.Email,
-		FullName: user.FullName,
-	}
-
+	resp := newUserResponse(user)
 	ctx.JSON(http.StatusOK, resp)
+}
+
+type loginUserRequest struct {
+	Username string `json:"username" binding:"required,alphanum"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type loginUserResponse struct {
+	SessionID             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	User                  userResponse `json:"user"`
+}
+
+func (server *Server) loginUser(ctx *gin.Context) {
+
 }

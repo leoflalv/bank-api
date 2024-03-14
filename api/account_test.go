@@ -108,7 +108,7 @@ func TestGetAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -184,7 +184,7 @@ func TestListAccountsAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -261,7 +261,7 @@ func TestDeleteAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -345,7 +345,7 @@ func TestCreateAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -451,7 +451,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 

@@ -99,7 +99,7 @@ func TestGetUserAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -152,7 +152,7 @@ func TestCreateUserAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newMockServer(t, store)
 			SetupRoutes(server)
 			recorder := httptest.NewRecorder()
 
@@ -167,7 +167,5 @@ func TestCreateUserAPI(t *testing.T) {
 			server.router.ServeHTTP(recorder, req)
 			tc.checkResponse(t, recorder)
 		})
-
 	}
-
 }
