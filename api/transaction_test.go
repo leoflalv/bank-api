@@ -6,18 +6,20 @@ import (
 	"encoding/json"
 	mockdb "github/leoflalv/bank-api/db/mock"
 	db "github/leoflalv/bank-api/db/sqlc"
+	"github/leoflalv/bank-api/token"
 	"github/leoflalv/bank-api/util"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
-func randomEntry(accountId int64, amount float64) db.Entry {
+func randomEntry(accountId int64, amount int64) db.Entry {
 	return db.Entry{
 		ID:        int64(util.RandomNumber(1, 1000)),
 		Amount:    amount,
@@ -35,17 +37,19 @@ func requireBodyMatchTransaction(t *testing.T, body *bytes.Buffer, transaction d
 }
 
 func TestCreateTransactionAPI(t *testing.T) {
-	fromAccount := randomAccount()
+	user1, _ := randomUser()
+	fromAccount := randomAccount(user1.Username)
 	fromAccount.Currency = util.EUR
 
-	toAccount := randomAccount()
+	user2, _ := randomUser()
+	toAccount := randomAccount(user2.Username)
 	toAccount.Currency = util.EUR
 
 	transfer := db.Transfer{
 		ID:            int64(util.RandomNumber(1, 1000)),
 		FromAccountID: fromAccount.ID,
 		ToAccountID:   toAccount.ID,
-		Amount:        4.4,
+		Amount:        4,
 	}
 
 	fromAccountEntry := randomEntry(fromAccount.ID, -transfer.Amount)
@@ -73,12 +77,16 @@ func TestCreateTransactionAPI(t *testing.T) {
 		name          string
 		toAccountID   int64
 		fromAccountID int64
+		setupAuth     func(t *testing.T, request *http.Request, tokenManager token.Manager)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 		body          gin.H
 	}{
 		{
 			name: "Ok",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(1).Return(fromAccount, nil)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(1).Return(toAccount, nil)
@@ -97,6 +105,9 @@ func TestCreateTransactionAPI(t *testing.T) {
 		},
 		{
 			name: "BadRequest",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(0)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(0)
@@ -114,6 +125,9 @@ func TestCreateTransactionAPI(t *testing.T) {
 		},
 		{
 			name: "NotFoundAccount",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(1).Return(db.Account{}, sql.ErrNoRows)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(0)
@@ -131,6 +145,9 @@ func TestCreateTransactionAPI(t *testing.T) {
 		},
 		{
 			name: "IncorrectCurrency",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(1).Return(fromAccount, nil)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(0)
@@ -148,6 +165,9 @@ func TestCreateTransactionAPI(t *testing.T) {
 		},
 		{
 			name: "InternalSeverErrorAccount",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(1).Return(db.Account{}, sql.ErrConnDone)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(0)
@@ -165,6 +185,9 @@ func TestCreateTransactionAPI(t *testing.T) {
 		},
 		{
 			name: "InternalSeverErrorTransaction",
+			setupAuth: func(t *testing.T, request *http.Request, tokenManager token.Manager) {
+				addAuthorization(t, request, tokenManager, authorizationTypeBearer, user1.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).Times(1).Return(fromAccount, nil)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).Times(1).Return(toAccount, nil)
@@ -203,6 +226,7 @@ func TestCreateTransactionAPI(t *testing.T) {
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, req, server.tokenManager)
 			server.router.ServeHTTP(recorder, req)
 			tc.checkResponse(t, recorder)
 		})

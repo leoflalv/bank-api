@@ -22,8 +22,8 @@ func createRandomTransfer(fromAccount Account, toAccount Account) Transfer {
 }
 
 func TestCreateTransaction(t *testing.T) {
-	fromAccount := createRandomAccount()
-	toAccount := createRandomAccount()
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
 
 	args := CreateTransferParams{
 		Amount:        util.RandomNumber(1, 1000),
@@ -44,8 +44,8 @@ func TestCreateTransaction(t *testing.T) {
 }
 
 func TestGetTransaction(t *testing.T) {
-	fromAccount := createRandomAccount()
-	toAccount := createRandomAccount()
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
 
 	transfer1 := createRandomTransfer(fromAccount, toAccount)
 
@@ -61,8 +61,8 @@ func TestGetTransaction(t *testing.T) {
 }
 
 func TestListTransactions(t *testing.T) {
-	fromAccount := createRandomAccount()
-	toAccount := createRandomAccount()
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
 
 	for i := 0; i < 10; i++ {
 		createRandomTransfer(fromAccount, toAccount)

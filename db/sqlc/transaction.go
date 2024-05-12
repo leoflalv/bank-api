@@ -3,9 +3,9 @@ package db
 import "context"
 
 type TransactionParams struct {
-	FromAccountID int64   `json:"from_account_id"`
-	ToAccountID   int64   `json:"to_account_id"`
-	Amount        float64 `json:"amount"`
+	FromAccountID int64 `json:"from_account_id"`
+	ToAccountID   int64 `json:"to_account_id"`
+	Amount        int64 `json:"amount"`
 }
 
 type TransactionResult struct {
@@ -67,9 +67,9 @@ func addMoney(
 	ctx context.Context,
 	q *Queries,
 	accountID1 int64,
-	amount1 float64,
+	amount1 int64,
 	accountID2 int64,
-	amount2 float64,
+	amount2 int64,
 ) (account1 Account, account2 Account, err error) {
 
 	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{

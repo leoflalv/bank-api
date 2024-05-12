@@ -7,16 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const threshold = 0.001
-
 func TestTransaction(t *testing.T) {
 	store := NewStore(testDB)
 
-	account1 := createRandomAccount()
-	account2 := createRandomAccount()
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
 
 	n := 5
-	amount := float64(10)
+	amount := int64(10)
 
 	errs := make(chan error)
 	results := make(chan TransactionResult)
@@ -84,10 +82,10 @@ func TestTransaction(t *testing.T) {
 
 		diff1 := account1.Balance - fromAccount.Balance
 		diff2 := toAccount.Balance - account2.Balance
-		require.True(t, diff1-diff2 < threshold && diff1-diff2 > -threshold)
+		require.True(t, diff1-diff2 == 0)
 		require.True(t, diff1 > 0)
 
-		k := int(diff1/amount + threshold)
+		k := int(diff1 / amount)
 		require.True(t, k >= 1 && k <= n)
 		require.NotContains(t, existed, k)
 		existed[k] = true
@@ -99,18 +97,18 @@ func TestTransaction(t *testing.T) {
 	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
 
-	require.True(t, account1.Balance-float64(n)*amount-updatedAccount1.Balance < threshold && account1.Balance-float64(n)*amount-updatedAccount1.Balance > -threshold)
-	require.True(t, account2.Balance+float64(n)*amount-updatedAccount2.Balance < threshold && account2.Balance+float64(n)*amount-updatedAccount2.Balance > -threshold)
+	require.True(t, account1.Balance-int64(n)*amount-updatedAccount1.Balance == 0)
+	require.True(t, account2.Balance+int64(n)*amount-updatedAccount2.Balance == 0)
 }
 
 func TestTransactionDeadlock(t *testing.T) {
 	store := NewStore(testDB)
 
-	account1 := createRandomAccount()
-	account2 := createRandomAccount()
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
 
 	n := 10
-	amount := float64(10)
+	amount := int64(10)
 
 	errs := make(chan error)
 
@@ -145,6 +143,6 @@ func TestTransactionDeadlock(t *testing.T) {
 	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
 
-	require.True(t, account1.Balance-updatedAccount1.Balance < threshold && account1.Balance-updatedAccount1.Balance > -threshold)
-	require.True(t, account2.Balance-updatedAccount2.Balance < threshold && account2.Balance-updatedAccount2.Balance > -threshold)
+	require.True(t, account1.Balance-updatedAccount1.Balance == 0)
+	require.True(t, account2.Balance-updatedAccount2.Balance == 0)
 }
