@@ -18,6 +18,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::768175301621:oidc-provider/token.actions.githubusercontent.com
           aws-region: eu-west-3
+          audience: sts.amazonaws.com
 
       - name: Login to Amazon ECR
         id: login-ecr
