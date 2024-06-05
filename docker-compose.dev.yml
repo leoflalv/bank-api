@@ -1,22 +1,6 @@
+
 version: "3.4"
 services:
-  db:
-    image: postgres:14-alpine
-    restart: always
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=bank
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   migrate:
     image: migrate/migrate:v4.15.2
     profiles: ["tools"]
@@ -28,16 +12,8 @@ services:
         "-path",
         "/migrations",
         "-database",
-        "postgresql://root:secret@db:5432/bank?sslmode=disable",
+        "postgresql://root:1dzjA7F0BA8QwXeTRXw2@bank.c3y0equmgn8w.eu-west-3.rds.amazonaws.com:5432/bank",
       ]
     command: ["up"]
-    links:
-      - db
     restart: on-failure
-    depends_on:
-      db:
-        condition: service_healthy
 
-volumes:
-  db:
-    driver: local

@@ -2,7 +2,9 @@
 #== Env Variables ==#
 #===================#
 
-DOCKER_COMPOSE_FILE ?= docker-compose.dev.yml
+DOCKER_COMPOSE_FILE ?= docker-compose.local.yml
+
+AWS_DOCKER_COMPOSE_FILE ?= docker-compose.dev.yml
 
 #=========================#
 #== DATABASE MANAGEMENT ==#
@@ -35,6 +37,21 @@ migrate-down1:
 
 migrate-create:
 	docker compose -f ${DOCKER_COMPOSE_FILE} --profile tools run --rm migrate create -ext sql -dir /migrations $(name)
+
+aws-migrate-up:
+	docker compose -f ${AWS_DOCKER_COMPOSE_FILE} --profile tools run --rm migrate up
+
+aws-migrate-up1:
+	docker compose -f ${AWS_DOCKER_COMPOSE_FILE} --profile tools run --rm migrate up 1
+
+aws-migrate-down:
+	docker compose -f ${AWS_DOCKER_COMPOSE_FILE} --profile tools run --rm migrate down 
+
+aws-migrate-down1:
+	docker compose -f ${AWS_DOCKER_COMPOSE_FILE} --profile tools run --rm migrate down 1
+
+aws-migrate-create:
+	docker compose -f ${AWS_DOCKER_COMPOSE_FILE} --profile tools run --rm migrate create -ext sql -dir /migrations $(name)
 
 #=================#
 #== GO COMMANDS ==#
